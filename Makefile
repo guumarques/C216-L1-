@@ -1,9 +1,12 @@
 .PHONY: help install test lint format run clean
 
-PYTHON := poetry run python
-PYTEST := poetry run pytest
-UVICORN := poetry run uvicorn
-RUFF := poetry run ruff
+BACKEND := backend
+POETRY := poetry --directory $(BACKEND)
+
+PYTHON := $(POETRY) run python
+PYTEST := $(POETRY) run pytest
+UVICORN := $(POETRY) run uvicorn
+RUFF := $(POETRY) run ruff
 
 help:
 	@echo "Available commands:"
@@ -15,7 +18,7 @@ help:
 	@echo "  clean: Clean up temporary files"
 
 install:
-	poetry install
+	$(POETRY) install
 test:
 	$(PYTEST) tests
 lint:
