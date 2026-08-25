@@ -1,0 +1,25 @@
+[project]
+name = "aula1"
+version = "1"
+description = "primeira aula de sistemas distribuidos"
+authors = [
+    {name = "guumarques",email = "gustavo.gr697.gm@gmail.com"}
+]
+license = "MIT"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi (>=0.141.1,<0.142.0)",
+    "uvicorn (>=0.52.4,<0.53.0)"
+]
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.1.1,<10.0.0)",
+    "httpx (>=0.28.1,<0.29.0)",
+    "ruff (>=0.16.3,<0.17.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
