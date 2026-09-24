@@ -27,7 +27,7 @@ help:
 install:
 	$(POETRY) install
 test:
-	$(PYTEST) tests
+	$(PYTEST) tests -v
 lint:
 	$(RUFF) check .
 format:
