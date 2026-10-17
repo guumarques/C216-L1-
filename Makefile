@@ -55,4 +55,4 @@ docker-restart:
 	$(DC) restart
 
 db-shell:
-	$(DC) exec db psql -U $${POSTGRES_USER:-aula1} -d $${POSTGRES_DB:-aula1}
+	$(DC) exec db psql -U $${POSTGRES_USER:-aula5} -d $${POSTGRES_DB:-aula5}
