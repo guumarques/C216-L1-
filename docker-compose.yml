@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-aula1}:${POSTGRES_PASSWORD:-aula1}@db:5432/${POSTGRES_DB:-aula1}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-aula5}:${POSTGRES_PASSWORD:-aula5}@db:5432/${POSTGRES_DB:-aula5}
     depends_on:
       db:
         condition: service_healthy
@@ -16,15 +16,15 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-aula1}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aula1}
-      POSTGRES_DB: ${POSTGRES_DB:-aula1}
+      POSTGRES_USER: ${POSTGRES_USER:-aula5}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aula5}
+      POSTGRES_DB: ${POSTGRES_DB:-aula5}
     ports:
-      - "5432:5432"
+      - "15432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aula1}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aula5}"]
       interval: 5s
       timeout: 5s
       retries: 5

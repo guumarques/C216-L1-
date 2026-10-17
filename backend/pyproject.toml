@@ -1,5 +1,5 @@
 [project]
-name = "aula1"
+name = "aula5"
 version = "1"
 description = "primeira aula de sistemas distribuidos"
 authors = [
@@ -9,7 +9,10 @@ license = "MIT"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi (>=0.141.1,<0.142.0)",
-    "uvicorn (>=0.52.4,<0.53.0)"
+    "uvicorn (>=0.52.4,<0.53.0)",
+    "sqlalchemy (>=2.1.5,<3.0.0)",
+    "psycopg[binary] (>=3.3.6,<4.0.0)",
+    "alembic (>=1.20.0,<2.0.0)"
 ]
 
 [dependency-groups]
@@ -26,6 +29,9 @@ package-mode = false
 [tool.pytest.ini_options]
 pythonpath = ["."]
 
+[tool.ruff]
+extend-exclude = ["alembic/versions", "alembic/env.py"]
+
 [tool.ruff.lint]
 select = [
     "E",    # pycodestyle errors
@@ -36,6 +42,9 @@ select = [
     "B",    # flake8-bugbear (pega bugs comuns)
 ]
 ignore = []
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
