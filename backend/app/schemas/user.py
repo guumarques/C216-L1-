@@ -1,9 +1,13 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
+EMAIL_PATTERN = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
 
 
 class UserBase(BaseModel):
-    name: str
-    email: str
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    name: str = Field(min_length=1, max_length=100)
+    email: str = Field(max_length=254, pattern=EMAIL_PATTERN)
 
 
 class UserCreate(UserBase):
@@ -11,8 +15,10 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(BaseModel):
-    name: str | None = None
-    email: str | None = None
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    email: str | None = Field(default=None, max_length=254, pattern=EMAIL_PATTERN)
 
 
 class User(UserBase):
