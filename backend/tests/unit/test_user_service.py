@@ -1,5 +1,8 @@
+import pytest
+
 from app.schemas.user import UserCreate, UserUpdate
 from app.services import user as user_service
+from app.services.user import DuplicateEmailError
 
 
 def test_create_user(db_session):
@@ -48,3 +51,13 @@ def test_delete_user(db_session):
     )
     assert user_service.delete_user(db_session, created.id) is True
     assert user_service.delete_user(db_session, created.id) is False
+
+
+def test_create_user_with_duplicate_email_raises(db_session):
+    user_service.create_user(
+        db_session, UserCreate(name="Ana", email="ana@example.com")
+    )
+    with pytest.raises(DuplicateEmailError):
+        user_service.create_user(
+            db_session, UserCreate(name="Outra", email="ana@example.com")
+        )

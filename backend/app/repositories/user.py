@@ -16,6 +16,10 @@ class UserRepository:
     def get(self, user_id: int) -> UserModel | None:
         return self.db.get(UserModel, user_id)
 
+    def get_by_email(self, email: str) -> UserModel | None:
+        stmt = select(UserModel).where(UserModel.email == email)
+        return self.db.scalars(stmt).first()
+
     def create(self, data: UserCreate) -> UserModel:
         user = UserModel(**data.model_dump())
         self.db.add(user)

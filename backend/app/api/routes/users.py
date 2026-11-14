@@ -4,8 +4,12 @@ from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.schemas.user import User, UserCreate, UserUpdate
 from app.services import user as user_service
+from app.services.user import DuplicateEmailError
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+USER_NOT_FOUND = "Usuário não encontrado."
+DUPLICATE_EMAIL = "Já existe um usuário com esse e-mail."
 
 
 @router.get("/", response_model=list[User])
@@ -19,34 +23,43 @@ def list_users(
 
 @router.post("/", response_model=User, status_code=201)
 def create_user(data: UserCreate, db: Session = Depends(get_db)):
-    return user_service.create_user(db, data)
+    try:
+        return user_service.create_user(db, data)
+    except DuplicateEmailError:
+        raise HTTPException(status_code=409, detail=DUPLICATE_EMAIL) from None
 
 
 @router.get("/{user_id}", response_model=User)
 def get_user(user_id: int, db: Session = Depends(get_db)):
     user = user_service.get_user(db, user_id)
     if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail=USER_NOT_FOUND)
     return user
 
 
 @router.put("/{user_id}", response_model=User)
 def replace_user(user_id: int, data: UserCreate, db: Session = Depends(get_db)):
-    user = user_service.update_user(db, user_id, data)
+    try:
+        user = user_service.update_user(db, user_id, data)
+    except DuplicateEmailError:
+        raise HTTPException(status_code=409, detail=DUPLICATE_EMAIL) from None
     if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail=USER_NOT_FOUND)
     return user
 
 
 @router.patch("/{user_id}", response_model=User)
 def patch_user(user_id: int, data: UserUpdate, db: Session = Depends(get_db)):
-    user = user_service.patch_user(db, user_id, data)
+    try:
+        user = user_service.patch_user(db, user_id, data)
+    except DuplicateEmailError:
+        raise HTTPException(status_code=409, detail=DUPLICATE_EMAIL) from None
     if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail=USER_NOT_FOUND)
     return user
 
 
 @router.delete("/{user_id}", status_code=204)
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     if not user_service.delete_user(db, user_id):
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail=USER_NOT_FOUND)

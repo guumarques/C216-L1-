@@ -81,3 +81,43 @@ def test_list_users_pagination(client):
     resp = client.get("/users/?skip=1&limit=1")
     assert resp.status_code == 200
     assert len(resp.json()) == 1
+
+
+def test_create_user_duplicate_email_returns_409(client):
+    client.post("/users/", json={"name": "Ana", "email": "ana@example.com"})
+
+    resp = client.post("/users/", json={"name": "Outra", "email": "ana@example.com"})
+    assert resp.status_code == 409
+    assert resp.json()["detail"] == "Já existe um usuário com esse e-mail."
+
+
+def test_put_user_with_email_of_another_user_returns_409(client):
+    client.post("/users/", json={"name": "Ana", "email": "ana@example.com"})
+    bia = client.post("/users/", json={"name": "Bia", "email": "bia@example.com"})
+
+    resp = client.put(
+        f"/users/{bia.json()['id']}",
+        json={"name": "Bia", "email": "ana@example.com"},
+    )
+    assert resp.status_code == 409
+
+
+def test_patch_user_keeping_own_email_is_allowed(client):
+    created = client.post(
+        "/users/", json={"name": "Ana", "email": "ana@example.com"}
+    ).json()
+
+    resp = client.patch(
+        f"/users/{created['id']}", json={"name": "Ana", "email": "ana@example.com"}
+    )
+    assert resp.status_code == 200
+
+
+def test_create_user_with_blank_name_returns_422(client):
+    resp = client.post("/users/", json={"name": "   ", "email": "ana@example.com"})
+    assert resp.status_code == 422
+
+
+def test_create_user_with_invalid_email_returns_422(client):
+    resp = client.post("/users/", json={"name": "Ana", "email": "ana.example.com"})
+    assert resp.status_code == 422
