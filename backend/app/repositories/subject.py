@@ -1,5 +1,5 @@
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.models.subject import SubjectModel
 from app.schemas.subject import SubjectCreate
@@ -10,7 +10,11 @@ class SubjectRepository:
         self.db = db
 
     def list(self) -> list[SubjectModel]:
-        stmt = select(SubjectModel).order_by(SubjectModel.name)
+        stmt = (
+            select(SubjectModel)
+            .options(selectinload(SubjectModel.absences))
+            .order_by(SubjectModel.name)
+        )
         return list(self.db.scalars(stmt))
 
     def get(self, subject_id: int) -> SubjectModel | None:

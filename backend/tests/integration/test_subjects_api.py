@@ -103,3 +103,46 @@ def test_delete_subject(client):
 
 def test_delete_missing_subject_returns_404(client):
     assert client.delete("/subjects/999").status_code == 404
+
+
+def add_absence(client, subject_id, date, quantity, justified=False):
+    resp = client.post(
+        f"/subjects/{subject_id}/absences",
+        json={"date": date, "quantity": quantity, "justified": justified},
+    )
+    assert resp.status_code == 201
+
+
+def test_new_subject_has_full_summary(client):
+    body = create_subject(client)
+
+    assert body["absence_limit"] == 20
+    assert body["absences_used"] == 0
+    assert body["absences_remaining"] == 20
+    assert body["status"] == "ok"
+
+
+def test_summary_ignores_justified_absences(client):
+    subject = create_subject(client, total_classes=20)  # limite = 5
+    add_absence(client, subject["id"], "2026-11-03", 2)
+    add_absence(client, subject["id"], "2026-11-04", 4, justified=True)
+
+    body = client.get(f"/subjects/{subject['id']}").json()
+
+    assert body["absences_used"] == 2
+    assert body["absences_remaining"] == 3
+    assert body["status"] == "ok"
+
+
+def test_summary_at_risk_and_failed(client):
+    subject = create_subject(client, total_classes=20)  # limite = 5
+    add_absence(client, subject["id"], "2026-11-03", 4)
+
+    assert client.get("/subjects/").json()[0]["status"] == "at_risk"
+
+    add_absence(client, subject["id"], "2026-11-04", 2)
+    body = client.get("/subjects/").json()[0]
+
+    assert body["absences_used"] == 6
+    assert body["absences_remaining"] == 0
+    assert body["status"] == "failed"

@@ -1,5 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.services.attendance import AttendanceStatus
+
 
 class SubjectBase(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
@@ -15,6 +17,8 @@ class SubjectCreate(SubjectBase):
 
 
 class Subject(SubjectBase):
-    model_config = ConfigDict(from_attributes=True)
-
     id: int
+    absence_limit: int
+    absences_used: int
+    absences_remaining: int
+    status: AttendanceStatus
