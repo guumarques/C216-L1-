@@ -4,6 +4,10 @@ export function listSubjects() {
   return request("/subjects/");
 }
 
+export function getSubject(id) {
+  return request(`/subjects/${id}`);
+}
+
 export function createSubject(data) {
   return request("/subjects/", { method: "POST", body: data });
 }
