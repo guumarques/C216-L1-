@@ -7,5 +7,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: "./src/setupTests.js",
+    // Os testes E2E (tests/e2e) são do Playwright, não do Vitest
+    include: ["src/**/*.test.{js,jsx}"],
   },
 });

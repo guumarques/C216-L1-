@@ -1,6 +1,7 @@
 .PHONY: help install test lint format format-check run \
 	up up-build down ps logs db-upgrade db-current db-shell \
-	fe-install fe-dev fe-lint fe-format fe-build fe-test
+	fe-install fe-dev fe-lint fe-format fe-build fe-test \
+	e2e-install e2e e2e-up e2e-test e2e-down check-all
 
 BACKEND := backend
 FRONTEND := frontend
@@ -12,6 +13,9 @@ UVICORN := $(POETRY) run uvicorn
 RUFF := $(POETRY) run ruff
 
 DC := docker compose
+# Stack isolada para o E2E: outro nome de projeto, outras portas e volume proprio
+DC_E2E := docker compose -p controle-faltas-e2e --env-file .env.e2e
+E2E_BASE_URL := http://localhost:15173
 
 POSTGRES_USER ?= faltas
 POSTGRES_DB ?= faltas
@@ -38,6 +42,11 @@ help:
 	@echo "  db-upgrade       Aplica as migrations (alembic upgrade head)"
 	@echo "  db-current       Mostra a migration atual do banco"
 	@echo "  db-shell         Abre o psql dentro do container do banco"
+	@echo "E2E:"
+	@echo "  e2e-install      Instala o Chromium do Playwright"
+	@echo "  e2e              E2E numa stack isolada (controle-faltas-e2e), removida ao final"
+	@echo "Tudo:"
+	@echo "  check-all        lint, test, fe-lint, fe-test, fe-build e e2e"
 
 # ---------- Backend ----------
 install:
@@ -101,3 +110,28 @@ db-current:
 
 db-shell:
 	$(DC) exec db psql -U $(POSTGRES_USER) -d $(POSTGRES_DB)
+
+# ---------- E2E ----------
+e2e-install:
+	npx --prefix $(FRONTEND) playwright install chromium
+
+# Sobe a stack isolada, roda o Playwright e derruba tudo (inclusive o volume),
+# mesmo quando algum passo falha.
+e2e:
+	$(MAKE) e2e-up || ($(MAKE) e2e-down && exit 1)
+	$(MAKE) e2e-test || ($(MAKE) e2e-down && exit 1)
+	$(MAKE) e2e-down
+
+e2e-up:
+	$(DC_E2E) up -d --build --wait
+	$(DC_E2E) exec -T api alembic upgrade head
+
+e2e-test: export E2E_BASE_URL := $(E2E_BASE_URL)
+e2e-test:
+	$(NPM) run test:e2e
+
+e2e-down:
+	$(DC_E2E) down -v --remove-orphans
+
+# ---------- Tudo ----------
+check-all: lint test fe-lint fe-test fe-build e2e
