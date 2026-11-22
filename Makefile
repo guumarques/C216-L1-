@@ -1,6 +1,6 @@
 .PHONY: help install test lint format format-check run \
 	up up-build down ps logs db-upgrade db-current db-shell \
-	fe-install fe-dev fe-lint fe-format fe-build
+	fe-install fe-dev fe-lint fe-format fe-build fe-test
 
 BACKEND := backend
 FRONTEND := frontend
@@ -30,6 +30,7 @@ help:
 	@echo "  fe-lint          Verifica o frontend com Biome"
 	@echo "  fe-format        Formata o frontend com Biome"
 	@echo "  fe-build         Gera o build de producao do frontend"
+	@echo "  fe-test          Roda os testes do frontend (Vitest)"
 	@echo "Docker:"
 	@echo "  up / up-build    Sobe db e api (up-build reconstroi as imagens)"
 	@echo "  down             Derruba os containers"
@@ -69,6 +70,9 @@ fe-lint:
 
 fe-format:
 	$(NPM) run format
+
+fe-test:
+	$(NPM) run test
 
 fe-build:
 	$(NPM) run build
