@@ -13,10 +13,9 @@ async function createSubject(page, name, totalClasses = 80) {
   await page.getByRole("button", { name: "Salvar" }).click();
 }
 
-async function registerAbsence(page, date, quantity) {
+async function registerAbsence(page, date) {
   await page.getByRole("button", { name: "Registrar falta" }).click();
   await page.getByLabel("Data").fill(date);
-  await page.getByLabel("Aulas perdidas").fill(String(quantity));
   await page.getByRole("button", { name: "Salvar" }).click();
 }
 
@@ -65,7 +64,7 @@ test("mostra erro ao cadastrar disciplina com nome repetido", async ({
 });
 
 test("registra faltas e a situação muda até reprovado", async ({ page }) => {
-  // 8 aulas com 25% -> limite de 2 faltas
+  // 8 aulas com 25% -> limite de 2 faltas; cada dia faltado vale 2
   const name = unique("Cálculo");
   await page.goto("/");
   await createSubject(page, name, 8);
@@ -76,19 +75,19 @@ test("registra faltas e a situação muda até reprovado", async ({ page }) => {
   await expect(page.getByRole("heading", { name })).toBeVisible();
   await expect(page.getByText("Nenhuma falta registrada.")).toBeVisible();
 
-  await registerAbsence(page, "2025-03-10", 2);
+  await registerAbsence(page, "2025-03-10");
   await expect(page.getByText("2 de 2 faltas")).toBeVisible();
   await expect(page.getByText("Em risco")).toBeVisible();
-  await expect(page.getByText("10/03/2025 — 2 aulas")).toBeVisible();
+  await expect(page.getByText("10/03/2025 — 2 faltas")).toBeVisible();
 
-  await registerAbsence(page, "2025-03-10", 1);
+  await registerAbsence(page, "2025-03-10");
   await expect(page.getByRole("alert")).toHaveText(
     "Já existe uma falta registrada nessa data para essa disciplina.",
   );
   await page.getByRole("button", { name: "Cancelar" }).click();
 
-  await registerAbsence(page, "2025-03-11", 1);
-  await expect(page.getByText("3 de 2 faltas")).toBeVisible();
+  await registerAbsence(page, "2025-03-11");
+  await expect(page.getByText("4 de 2 faltas")).toBeVisible();
   await expect(page.getByText("Reprovado")).toBeVisible();
 
   await page.getByRole("button", { name: "Voltar para disciplinas" }).click();

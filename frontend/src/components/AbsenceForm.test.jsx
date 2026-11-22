@@ -13,7 +13,6 @@ it("registra falta justificada com a data de hoje por padrão", async () => {
 
   expect(onSubmit).toHaveBeenCalledWith({
     date: todayISO(),
-    quantity: 2,
     justified: true,
     note: null,
   });

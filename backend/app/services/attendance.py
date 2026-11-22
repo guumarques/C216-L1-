@@ -4,6 +4,8 @@ from enum import StrEnum
 from app.models.absence import AbsenceModel
 
 RISK_THRESHOLD = 0.75
+# Só há uma aula por dia de cada disciplina, e faltar nela conta 2 faltas
+ABSENCES_PER_DAY = 2
 
 
 class AttendanceStatus(StrEnum):
@@ -17,7 +19,8 @@ def absence_limit(total_classes: int, limit_percent: int) -> int:
 
 
 def used_absences(absences: Iterable[AbsenceModel]) -> int:
-    return sum(a.quantity for a in absences if not a.justified)
+    days_missed = sum(1 for a in absences if not a.justified)
+    return days_missed * ABSENCES_PER_DAY
 
 
 def attendance_status(used: int, limit: int) -> AttendanceStatus:

@@ -14,8 +14,8 @@ export default function AbsenceList({ absences, onEdit, onDelete }) {
         >
           <div>
             <p className="font-medium">
-              {formatDate(absence.date)} —{" "}
-              {absence.quantity === 1 ? "1 aula" : `${absence.quantity} aulas`}
+              {formatDate(absence.date)}
+              {!absence.justified && " — 2 faltas"}
               {absence.justified && (
                 <span className="ml-2 rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-800">
                   Justificada

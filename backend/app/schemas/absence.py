@@ -7,7 +7,6 @@ class AbsenceBase(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
 
     date: dt.date
-    quantity: int = Field(ge=1, le=4)
     justified: bool = False
     note: str | None = Field(default=None, max_length=200)
 

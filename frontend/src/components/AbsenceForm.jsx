@@ -3,11 +3,10 @@ import { todayISO } from "../utils/date.js";
 
 function toFormValues(absence) {
   if (!absence) {
-    return { date: todayISO(), quantity: 2, justified: false, note: "" };
+    return { date: todayISO(), justified: false, note: "" };
   }
   return {
     date: absence.date,
-    quantity: absence.quantity,
     justified: absence.justified,
     note: absence.note ?? "",
   };
@@ -34,7 +33,6 @@ export default function AbsenceForm({ absence, onSubmit, onCancel }) {
     try {
       await onSubmit({
         date: values.date,
-        quantity: Number(values.quantity),
         justified: values.justified,
         note: values.note.trim() || null,
       });
@@ -64,36 +62,19 @@ export default function AbsenceForm({ absence, onSubmit, onCancel }) {
         </p>
       )}
 
-      <div className="grid grid-cols-2 gap-3">
-        <label htmlFor={`${id}-date`} className="text-sm font-medium">
-          Data
-          <input
-            id={`${id}-date`}
-            name="date"
-            type="date"
-            value={values.date}
-            onChange={handleChange}
-            required
-            max={todayISO()}
-            className={inputClass}
-          />
-        </label>
-
-        <label htmlFor={`${id}-quantity`} className="text-sm font-medium">
-          Aulas perdidas
-          <input
-            id={`${id}-quantity`}
-            name="quantity"
-            type="number"
-            value={values.quantity}
-            onChange={handleChange}
-            required
-            min={1}
-            max={4}
-            className={inputClass}
-          />
-        </label>
-      </div>
+      <label htmlFor={`${id}-date`} className="text-sm font-medium">
+        Data (cada falta conta 2)
+        <input
+          id={`${id}-date`}
+          name="date"
+          type="date"
+          value={values.date}
+          onChange={handleChange}
+          required
+          max={todayISO()}
+          className={inputClass}
+        />
+      </label>
 
       <label htmlFor={`${id}-note`} className="text-sm font-medium">
         Observação (opcional)

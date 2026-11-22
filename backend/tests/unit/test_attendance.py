@@ -8,21 +8,27 @@ from app.services.attendance import (
 
 
 def test_absence_limit_is_percent_of_total_classes():
-    assert absence_limit(80, 25) == 20
+    assert absence_limit(100, 25) == 25
 
 
 def test_absence_limit_rounds_down():
     assert absence_limit(30, 25) == 7
 
 
+def test_each_absence_counts_as_two():
+    absences = [AbsenceModel(justified=False), AbsenceModel(justified=False)]
+
+    assert used_absences(absences) == 4
+
+
 def test_used_absences_ignores_justified():
     absences = [
-        AbsenceModel(quantity=2, justified=False),
-        AbsenceModel(quantity=4, justified=True),
-        AbsenceModel(quantity=1, justified=False),
+        AbsenceModel(justified=False),
+        AbsenceModel(justified=True),
+        AbsenceModel(justified=False),
     ]
 
-    assert used_absences(absences) == 3
+    assert used_absences(absences) == 4
 
 
 def test_used_absences_without_absences_is_zero():
@@ -30,16 +36,18 @@ def test_used_absences_without_absences_is_zero():
 
 
 def test_status_ok_below_75_percent_of_limit():
-    assert attendance_status(14, 20) == AttendanceStatus.OK
+    assert attendance_status(18, 25) == AttendanceStatus.OK
 
 
 def test_status_at_risk_from_75_percent_of_limit():
-    assert attendance_status(15, 20) == AttendanceStatus.AT_RISK
+    assert attendance_status(20, 25) == AttendanceStatus.AT_RISK
 
 
-def test_status_at_risk_exactly_on_limit():
-    assert attendance_status(20, 20) == AttendanceStatus.AT_RISK
+def test_status_at_risk_below_limit():
+    # 12 faltas de 2 = 24, ainda dentro do limite de 25
+    assert attendance_status(24, 25) == AttendanceStatus.AT_RISK
 
 
 def test_status_failed_above_limit():
-    assert attendance_status(21, 20) == AttendanceStatus.FAILED
+    # a 13ª falta leva a 26, acima do limite de 25
+    assert attendance_status(26, 25) == AttendanceStatus.FAILED

@@ -1,7 +1,7 @@
 import datetime as dt
 
 SUBJECT = {"name": "Redes", "total_classes": 80}
-ABSENCE = {"date": "2026-11-10", "quantity": 2}
+ABSENCE = {"date": "2026-11-10"}
 
 
 def create_subject(client):
@@ -25,7 +25,7 @@ def test_create_absence(client):
 
     assert body["subject_id"] == subject_id
     assert body["date"] == "2026-11-10"
-    assert body["quantity"] == 2
+    assert "quantity" not in body
     assert body["justified"] is False
     assert body["note"] is None
 
@@ -78,12 +78,12 @@ def test_absence_in_the_future_returns_422(client):
     assert resp.status_code == 422
 
 
-def test_absence_with_invalid_quantity_returns_422(client):
+def test_absence_without_date_returns_422(client):
     subject_id = create_subject(client)
-    url = f"/subjects/{subject_id}/absences"
 
-    assert client.post(url, json={**ABSENCE, "quantity": 0}).status_code == 422
-    assert client.post(url, json={**ABSENCE, "quantity": 5}).status_code == 422
+    resp = client.post(f"/subjects/{subject_id}/absences", json={})
+
+    assert resp.status_code == 422
 
 
 def test_update_absence(client):

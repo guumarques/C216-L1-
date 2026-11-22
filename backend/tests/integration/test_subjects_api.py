@@ -105,10 +105,10 @@ def test_delete_missing_subject_returns_404(client):
     assert client.delete("/subjects/999").status_code == 404
 
 
-def add_absence(client, subject_id, date, quantity, justified=False):
+def add_absence(client, subject_id, date, justified=False):
     resp = client.post(
         f"/subjects/{subject_id}/absences",
-        json={"date": date, "quantity": quantity, "justified": justified},
+        json={"date": date, "justified": justified},
     )
     assert resp.status_code == 201
 
@@ -124,8 +124,8 @@ def test_new_subject_has_full_summary(client):
 
 def test_summary_ignores_justified_absences(client):
     subject = create_subject(client, total_classes=20)  # limite = 5
-    add_absence(client, subject["id"], "2026-11-03", 2)
-    add_absence(client, subject["id"], "2026-11-04", 4, justified=True)
+    add_absence(client, subject["id"], "2026-11-03")
+    add_absence(client, subject["id"], "2026-11-04", justified=True)
 
     body = client.get(f"/subjects/{subject['id']}").json()
 
@@ -135,14 +135,19 @@ def test_summary_ignores_justified_absences(client):
 
 
 def test_summary_at_risk_and_failed(client):
-    subject = create_subject(client, total_classes=20)  # limite = 5
-    add_absence(client, subject["id"], "2026-11-03", 4)
+    # 100 aulas com 25% -> limite de 25 faltas; cada dia faltado vale 2
+    subject = create_subject(client, total_classes=100)
+    for day in range(1, 13):
+        add_absence(client, subject["id"], f"2026-10-{day:02d}")
 
-    assert client.get("/subjects/").json()[0]["status"] == "at_risk"
+    body = client.get("/subjects/").json()[0]
+    assert body["absences_used"] == 24
+    assert body["absences_remaining"] == 1
+    assert body["status"] == "at_risk"
 
-    add_absence(client, subject["id"], "2026-11-04", 2)
+    add_absence(client, subject["id"], "2026-10-13")
     body = client.get("/subjects/").json()[0]
 
-    assert body["absences_used"] == 6
+    assert body["absences_used"] == 26
     assert body["absences_remaining"] == 0
     assert body["status"] == "failed"
