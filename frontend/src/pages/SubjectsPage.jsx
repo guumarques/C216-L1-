@@ -8,7 +8,7 @@ import {
   updateSubject,
 } from "../services/subjects.js";
 
-export default function SubjectsPage() {
+export default function SubjectsPage({ onOpenSubject }) {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -111,6 +111,7 @@ export default function SubjectsPage() {
             <SubjectCard
               key={subject.id}
               subject={subject}
+              onOpen={onOpenSubject}
               onEdit={openForm}
               onDelete={handleDelete}
             />

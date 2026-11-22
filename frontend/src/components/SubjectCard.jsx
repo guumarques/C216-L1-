@@ -1,9 +1,6 @@
-import { STATUS, usagePercent } from "../utils/status.js";
+import AttendanceSummary, { StatusBadge } from "./AttendanceSummary.jsx";
 
-export default function SubjectCard({ subject, onEdit, onDelete }) {
-  const status = STATUS[subject.status];
-  const percent = usagePercent(subject.absences_used, subject.absence_limit);
-
+export default function SubjectCard({ subject, onOpen, onEdit, onDelete }) {
   return (
     <article className="flex flex-col gap-4 rounded-lg bg-white p-4 shadow-sm">
       <header className="flex items-start justify-between gap-2">
@@ -13,34 +10,19 @@ export default function SubjectCard({ subject, onEdit, onDelete }) {
             <p className="text-sm text-slate-500">{subject.professor}</p>
           )}
         </div>
-        <span
-          className={`rounded-full px-2 py-0.5 text-xs font-medium ${status.badge}`}
-        >
-          {status.label}
-        </span>
+        <StatusBadge status={subject.status} />
       </header>
 
-      <div>
-        <div className="mb-1 flex justify-between text-sm">
-          <span>
-            {subject.absences_used} de {subject.absence_limit} faltas
-          </span>
-          <span className="text-slate-500">
-            Restam {subject.absences_remaining}
-          </span>
-        </div>
-        <div
-          aria-hidden="true"
-          className="h-2 overflow-hidden rounded-full bg-slate-200"
-        >
-          <div
-            className={`h-full ${status.bar}`}
-            style={{ width: `${percent}%` }}
-          />
-        </div>
-      </div>
+      <AttendanceSummary subject={subject} />
 
       <footer className="flex gap-2 text-sm">
+        <button
+          type="button"
+          onClick={() => onOpen(subject.id)}
+          className="rounded-md bg-blue-600 px-3 py-1 font-medium text-white hover:bg-blue-700"
+        >
+          Ver faltas
+        </button>
         <button
           type="button"
           onClick={() => onEdit(subject)}
