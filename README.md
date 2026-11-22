@@ -2,7 +2,7 @@
 
 Projeto Final da disciplina **C216 — Sistemas Distribuídos** (Inatel, 2026.2).
 
-🎥 **Vídeo de demonstração:** _(link a ser adicionado)_
+🎥 **Vídeo de demonstração:** https://youtu.be/dWuQe-BfEHs
 
 ## Objetivo e tema
 
