@@ -32,7 +32,7 @@ help:
 	@echo "  fe-build         Gera o build de producao do frontend"
 	@echo "  fe-test          Roda os testes do frontend (Vitest)"
 	@echo "Docker:"
-	@echo "  up / up-build    Sobe db e api (up-build reconstroi as imagens)"
+	@echo "  up / up-build    Sobe db, api e web (up-build reconstroi as imagens)"
 	@echo "  down             Derruba os containers"
 	@echo "  ps / logs        Status / logs dos containers"
 	@echo "  db-upgrade       Aplica as migrations (alembic upgrade head)"
