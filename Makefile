@@ -1,7 +1,10 @@
 .PHONY: help install test lint format format-check run \
-	up up-build down ps logs db-upgrade db-current db-shell
+	up up-build down ps logs db-upgrade db-current db-shell \
+	fe-install fe-dev fe-lint fe-format fe-build
 
 BACKEND := backend
+FRONTEND := frontend
+NPM := npm --prefix $(FRONTEND)
 POETRY := poetry --directory $(BACKEND)
 
 PYTEST := $(POETRY) run pytest
@@ -21,6 +24,12 @@ help:
 	@echo "  format           Formata o codigo com Ruff"
 	@echo "  format-check     Confere a formatacao sem alterar arquivos"
 	@echo "  run              Sobe a API localmente com reload"
+	@echo "Frontend:"
+	@echo "  fe-install       Instala as dependencias do frontend (npm)"
+	@echo "  fe-dev           Sobe o frontend em modo dev (Vite)"
+	@echo "  fe-lint          Verifica o frontend com Biome"
+	@echo "  fe-format        Formata o frontend com Biome"
+	@echo "  fe-build         Gera o build de producao do frontend"
 	@echo "Docker:"
 	@echo "  up / up-build    Sobe db e api (up-build reconstroi as imagens)"
 	@echo "  down             Derruba os containers"
@@ -47,6 +56,22 @@ format-check:
 
 run:
 	$(UVICORN) app.main:app --reload
+
+# ---------- Frontend ----------
+fe-install:
+	$(NPM) install
+
+fe-dev:
+	$(NPM) run dev
+
+fe-lint:
+	$(NPM) run lint
+
+fe-format:
+	$(NPM) run format
+
+fe-build:
+	$(NPM) run build
 
 # ---------- Docker ----------
 up:
